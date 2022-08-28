@@ -1,0 +1,40 @@
+###
+### A complete description of a Prefect Deployment for flow 'apply-model'
+###
+name: test
+description: null
+version: 53aaa96f5e7c5b07304fe92ca2384631
+# The work queue that will handle this deployment's runs
+work_queue_name: test
+tags: []
+parameters: {}
+schedule: null
+infra_overrides: {}
+infrastructure:
+  type: process
+  env: {}
+  labels: {}
+  name: null
+  command:
+  - python
+  - -m
+  - prefect.engine
+  stream_output: true
+
+###
+### DO NOT EDIT BELOW THIS LINE
+###
+flow_name: apply-model
+manifest_path: null
+storage: null
+path: /Users/keiranoconnell/Dev/bikeshare-ride-duration-prediction-service
+entrypoint: model_training.py:main_flow
+parameter_openapi_schema:
+  title: Parameters
+  type: object
+  properties:
+    data_path:
+      title: data_path
+      default: https://s3.amazonaws.com/capitalbikeshare-data/202204-capitalbikeshare-tripdata.zip
+  required: null
+  definitions: null
