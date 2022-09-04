@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'ml-deploy-sam SAM Template for ml-deploy-sam
+
+  '
+Globals:
+  Function:
+    Timeout: 60
+Resources:
+  PredictFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      MemorySize: 4096
+      Events:
+        PredictApi:
+          Type: Api
+          Properties:
+            Path: /predict
+            Method: POST
+      ImageUri: predictfunction:bikeshare-ride-duration-prediction-service-v3
+    Metadata:
+      DockerContext: /Users/keiranoconnell/Dev/bikeshare-ride-duration-prediction-service/prediction_service_deployment/predict
+      DockerTag: bikeshare-ride-duration-prediction-service-v3
+      Dockerfile: Dockerfile
+      SamResourceId: PredictFunction
+Outputs:
+  PredictApi:
+    Description: API Gateway endpoint URL for Prod stage for Predict function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/predict/
+  PredictFunction:
+    Description: Prediction Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - PredictFunction
+      - Arn
+  PredictFunctionIamRole:
+    Description: Implicit IAM Role created for Predict function
+    Value:
+      Fn::GetAtt:
+      - PredictFunctionRole
+      - Arn

@@ -1,6 +1,10 @@
 **/__pycache__
 **/.ipynb_checkpoints
 **/mlruns
+**/datasets
+**/models
 *.zip
 *.db
 *.bin
+commands.txt
+.env

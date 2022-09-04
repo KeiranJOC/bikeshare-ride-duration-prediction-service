@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "bikeshare-ride-duration-prediction-service-deployment-sam"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-r057qedsncux"
+s3_prefix = "bikeshare-ride-duration-prediction-service-deployment-sam"
+region = "ap-southeast-2"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = ["PredictFunction=843032675284.dkr.ecr.ap-southeast-2.amazonaws.com/bikeshareridedurationpredictionservicedeploymentsam3a3ece9c/predictfunction975a0b7frepo"]

@@ -31,10 +31,11 @@ def read_data(url: str):
     """
     zip_path = url.split('/')[-1] 
     file_name = zip_path.split('.')[0] + '.csv'
+    save_path = f'./datasets/{zip_path}'
 
     req = requests.get(url)
 
-    with open(zip_path, 'wb') as f_out:
+    with open(save_path, 'wb') as f_out:
         f_out.write(req.content)
 
     with zipfile.ZipFile(zip_path) as z:
