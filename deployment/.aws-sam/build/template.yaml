@@ -1,8 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: 'ml-deploy-sam SAM Template for ml-deploy-sam
-
-  '
+Description: SAM template for bikeshare-ride-duration-prediction-service-deployment-sam
 Globals:
   Function:
     Timeout: 60
@@ -20,7 +18,7 @@ Resources:
             Method: POST
       ImageUri: predictfunction:bikeshare-ride-duration-prediction-service-v3
     Metadata:
-      DockerContext: /Users/keiranoconnell/Dev/bikeshare-ride-duration-prediction-service/prediction_service_deployment/predict
+      DockerContext: /Users/keiranoconnell/Dev/bikeshare-ride-duration-prediction-service/deployment/predict
       DockerTag: bikeshare-ride-duration-prediction-service-v3
       Dockerfile: Dockerfile
       SamResourceId: PredictFunction

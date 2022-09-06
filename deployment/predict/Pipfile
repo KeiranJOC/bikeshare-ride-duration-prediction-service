@@ -5,17 +5,11 @@ name = "pypi"
 
 [packages]
 scikit-learn = "==1.0.2"
-flask = "*"
-gunicorn = "*"
 mlflow = "*"
 boto3 = "*"
-pandas = "*"
-pymongo = "*"
-evidently = "*"
 
 [dev-packages]
 requests = "*"
-pyarrow = "*"
 
 [requires]
 python_version = "3.9"
