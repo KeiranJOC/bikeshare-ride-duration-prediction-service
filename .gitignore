@@ -9,3 +9,4 @@
 *.bin
 commands.txt
 .env
+.DS_Store

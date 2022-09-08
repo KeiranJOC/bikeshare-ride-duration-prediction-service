@@ -27,5 +27,6 @@ def test_handler():
     response = lambda_client.invoke(FunctionName='PredictFunction', Payload=json.dumps(test_event))
     payload = json.load(response['Payload'])
 
-    # Verify the response
+    # the response payload contains a randomly generated uuid, so we can't assert that the payload is equal to an expected value
+    # instead we can check that the request returned a valid response
     assert response['StatusCode'] == 200
