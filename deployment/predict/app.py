@@ -4,12 +4,12 @@ import warnings
 import model
 
 # prevent multiprocessing warnings in AWS logs
-warnings.filterwarnings(action='ignore')
+warnings.filterwarnings(action="ignore")
 
-MODEL_NAME = os.getenv('MODEL_NAME', 'bikeshare-ride-duration-regressor')
+MODEL_NAME = os.getenv("MODEL_NAME", "bikeshare-ride-duration-regressor")
 MLFLOW_TRACKING_URI = os.getenv(
-    'MLFLOW_TRACKING_URI',
-    'http://ec2-54-79-228-176.ap-southeast-2.compute.amazonaws.com:5000/',
+    "MLFLOW_TRACKING_URI",
+    "http://ec2-54-79-228-176.ap-southeast-2.compute.amazonaws.com:5000/",
 )
 
 

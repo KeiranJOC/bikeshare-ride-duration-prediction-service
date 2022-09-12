@@ -5,11 +5,11 @@ name = "pypi"
 
 [packages]
 scikit-learn = "==1.0.2"
-mlflow = "*"
-boto3 = "*"
+mlflow = "==1.28.0"
+boto3 = "==1.24.70"
 
 [dev-packages]
-requests = "*"
+requests = "==2.28.1"
 
 [requires]
 python_version = "3.9"
