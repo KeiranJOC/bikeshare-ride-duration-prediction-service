@@ -16,4 +16,5 @@ This repo contains code for the training and deployment of a duration prediction
 #### Inference
 The model is deployed as a Lambda behind in API Gateway. To get a prediction from the model, run the following command in a terminal window:
 - `curl -X POST https://cr1876invh.execute-api.ap-southeast-2.amazonaws.com/Prod/predict?start_station_id=31646.0&end_station_id=31248.0&rideable_type=classic_bike`
+
 You may get a timeout error the first time you run it. If so, try again. You should receive a duration prediction and a 200 status code.
