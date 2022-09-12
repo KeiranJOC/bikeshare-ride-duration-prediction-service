@@ -1,26 +1,27 @@
+import os
 import mlflow
 import pickle
 import zipfile
 import requests
 import numpy as np
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 
 from typing import Dict, List
 from prefect import flow, task
-from hyperopt.pyll import scope
-from mlflow.tracking import MlflowClient
+from sklearn.linear_model import Ridge
 from prefect.deployments import Deployment
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from hyperopt import STATUS_OK, Trials, fmin, hp, tpe
-from prefect.flow_runners import SubprocessFlowRunner
 from sklearn.feature_extraction import DictVectorizer
-from prefect.orion.schemas.schedules import IntervalSchedule
-from sklearn.linear_model import LinearRegression, Lasso, Ridge
-from sklearn.metrics import mean_squared_error, mean_absolute_error
+from prefect.orion.schemas.schedules import CronSchedule
 
+
+DATA_PATH = os.getenv('DATA_PATH', 'https://s3.amazonaws.com/capitalbikeshare-data/202204-capitalbikeshare-tripdata.zip')
+MLFLOW_TRACKING_URI = os.getenv('MLFLOW_TRACKING_URI', 'http://ec2-54-79-228-176.ap-southeast-2.compute.amazonaws.com:5000/')
+EXPERIMENT_NAME = os.getenv('EXPERIMENT_NAME', 'bikeshare-ride-duration-prediction')
+MODEL_NAME = os.getenv('MODEL_NAME', 'bikeshare-ride-duration-regressor')
+MAX_EVALS = os.getenv('MAX_EVALS', 10)
 
 
 @task
@@ -38,7 +39,7 @@ def read_data(url: str):
     with open(save_path, 'wb') as f_out:
         f_out.write(req.content)
 
-    with zipfile.ZipFile(zip_path) as z:
+    with zipfile.ZipFile(save_path) as z:
         with z.open(file_name) as f:
             df = pd.read_csv(f, parse_dates=True)
             
@@ -93,7 +94,7 @@ def model_search(x_train, y_train, x_val, y_val):
         return {'loss': rmse, 'status': STATUS_OK}
 
     search_space = {
-        'alpha': scope.int(hp.uniform('alpha', 0.1, 1))
+        'alpha': hp.uniform('alpha', 0.1, 1)
     }
 
     rstate=np.random.default_rng(0)
@@ -101,7 +102,7 @@ def model_search(x_train, y_train, x_val, y_val):
         fn=objective,
         space=search_space,
         algo=tpe.suggest,
-        max_evals=5,
+        max_evals=MAX_EVALS,
         trials=Trials(),
         rstate=rstate
     )
@@ -112,7 +113,7 @@ def model_search(x_train, y_train, x_val, y_val):
 @task
 def train_best_model(x_train, y_train, x_val, y_val, dv, best_result: Dict):
     
-    with mlflow.start_run():
+    with mlflow.start_run() as run:
         
         print(f"Best params: {best_result}")
         mlflow.log_params(best_result)
@@ -126,20 +127,35 @@ def train_best_model(x_train, y_train, x_val, y_val, dv, best_result: Dict):
         with open('preprocessor.bin', 'wb') as f_out:
             pickle.dump(dv, f_out)
         mlflow.log_artifact('preprocessor.bin', artifact_path='preprocessor')
+        mlflow.sklearn.log_model(lr, artifact_path='model')
 
-        mlflow.sklearn.log_model(lr, artifact_path='models')
+        run_id = run.info.run_id
+        print(f'Run ID: {run_id}')
+        model_uri = f'runs:/{run_id}/model'
+        mlflow.register_model(model_uri=model_uri, name=MODEL_NAME)
+
+    return run_id
 
 
 @flow
-def apply_model(data_path='https://s3.amazonaws.com/capitalbikeshare-data/202204-capitalbikeshare-tripdata.zip'):
-    mlflow.set_tracking_uri('http://127.0.0.1:5000')
-    mlflow.set_experiment('bikeshare-ride-duration-prediction')
+def apply_model():
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+    mlflow.set_experiment(EXPERIMENT_NAME)
 
-    df, categorical_cols, target = read_data(data_path)
+    df, categorical_cols, target = read_data(DATA_PATH)
     x_train, x_val, y_train, y_val, dv = create_train_val_sets(df, categorical_cols, target)
 
     best_result = model_search(x_train, y_train, x_val, y_val)
-    train_best_model(x_train, y_train, x_val, y_val, dv, best_result)
+    run_id = train_best_model(x_train, y_train, x_val, y_val, dv, best_result)
 
 
-apply_model()
+deployment = Deployment.build_from_flow(
+    flow=apply_model,
+    name='model_training',
+    schedule=CronSchedule(cron='0 6 1 * *', timezone='Australia/Sydney'),
+    work_queue_name='bikeshare-ride-duration-prediction-model-training',
+)
+
+
+if __name__=='__main__':
+    deployment.apply()

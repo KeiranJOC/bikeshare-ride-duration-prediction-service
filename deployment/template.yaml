@@ -1,7 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description:
-  SAM template for bikeshare-ride-duration-prediction-service-deployment-sam
+Description: >
+  SAM template for the deployment of the bikeshare ride duration prediction service.
+  Docker + Lambda + API Gateway
 Globals:
   Function:
     Timeout: 60

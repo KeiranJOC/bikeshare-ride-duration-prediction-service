@@ -4,6 +4,9 @@ import boto3
 import botocore
 
 
+TEST_EVENT_PATH = './deployment/events/test.json'
+
+
 def test_handler():
     # Set "running_locally" flag if you are running the integration test locally
     running_locally = True
@@ -20,7 +23,7 @@ def test_handler():
     else:
         lambda_client = boto3.client('lambda')
 
-    test_event_path = './deployment/events/test.json'
+    test_event_path = TEST_EVENT_PATH
     with open(test_event_path, 'rb') as f_in:
         test_event = json.load(f_in)
     
