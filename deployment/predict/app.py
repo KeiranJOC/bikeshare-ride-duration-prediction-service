@@ -1,13 +1,19 @@
 import os
-import model
 import warnings
+
+import model
 
 # prevent multiprocessing warnings in AWS logs
 warnings.filterwarnings(action='ignore')
 
-RUN_ID = os.getenv('RUN_ID', '302789306678475c9603fd64714919e1')
+MODEL_NAME = os.getenv('MODEL_NAME', 'bikeshare-ride-duration-regressor')
+MLFLOW_TRACKING_URI = os.getenv(
+    'MLFLOW_TRACKING_URI',
+    'http://ec2-54-79-228-176.ap-southeast-2.compute.amazonaws.com:5000/',
+)
 
-model_service = model.init(run_id=RUN_ID)
+
+model_service = model.init(model_name=MODEL_NAME, tracking_uri=MLFLOW_TRACKING_URI)
 
 
 def lambda_handler(event, context):
